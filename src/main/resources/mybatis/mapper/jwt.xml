@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rldk2002.bookstore.security.jwt.JwtMapper">
+    <resultMap id="RM_User" type="Member">
+        <result column="MEMBER_NO" property="no" />
+        <result column="MEMBER_ID" property="id" />
+        <result column="MEMBER_ROLES" property="roles" typeHandler="com.rldk2002.bookstore.security.support.SimpleGrantedAuthoritiesTypeHandler" />
+        <result column="MEMBER_STATUSES" property="statuses" typeHandler="com.rldk2002.bookstore.security.support.AccountStatusesTypeHandler" />
+    </resultMap>
+    
+    <insert id="insertRefreshToken">
+        MERGE INTO JWT J
+            USING DUAL
+            ON (
+                J.MEMBER_NO = #{memberNo}
+            )
+        WHEN MATCHED THEN
+            UPDATE SET
+                J.JWT_REFRESH = #{refresh}
+        WHEN NOT MATCHED THEN
+            INSERT (
+                MEMBER_NO,
+                JWT_REFRESH
+            ) VALUES (
+                #{memberNo},
+                #{refresh}
+            )
+    </insert>
+    
+    <select id="selectUserDetails" resultMap="RM_User">
+        SELECT
+            MEMBER_NO,
+            MEMBER_ID,
+            MEMBER_ROLES,
+            MEMBER_STATUSES
+        FROM
+            MEMBER
+        WHERE
+            MEMBER_NO = (SELECT MEMBER_NO FROM JWT WHERE JWT_REFRESH = #{refresh})
+    </select>
+
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rldk2002.bookstore.book.mapper.BookMapper">
+
+    <insert id="mergeBookcart">
+        MERGE INTO BOOK_CART B
+            USING DUAL
+            ON (
+                B.MEMBER_NO = #{memberNo} AND
+                B.BOOK_ITEMID = #{itemId}
+            )
+        WHEN MATCHED THEN
+            UPDATE SET
+                B.BOOKCART_COUNT = B.BOOKCART_COUNT + #{count},
+                B.BOOKCART_TIMESTAMP = sysdate
+        WHEN NOT MATCHED THEN
+            INSERT (MEMBER_NO, BOOK_ITEMID, BOOKCART_COUNT, BOOKCART_TIMESTAMP)
+            VALUES (#{memberNo}, #{itemId}, #{count}, sysdate)
+    </insert>
+    
+    <update id="updateBookcart">
+        UPDATE BOOK_CART
+        SET
+            BOOKCART_COUNT = #{count}
+        WHERE
+            MEMBER_NO = #{memberNo} AND
+            BOOK_ITEMID = #{itemId}
+    </update>
+    
+    <select id="selectBookcart" resultType="BookCart">
+        SELECT
+            MEMBER_NO as memberNo,
+            BOOK_ITEMID as itemId,
+            BOOKCART_COUNT as count,
+            BOOKCART_TIMESTAMP as timestamp
+        FROM
+            BOOK_CART
+        WHERE
+            MEMBER_NO = #{memberNo}
+        ORDER BY
+            BOOKCART_TIMESTAMP DESC
+    </select>
+    
+    <delete id="deleteBookCart">
+        DELETE FROM BOOK_CART
+        WHERE
+            MEMBER_NO = #{memberNo} AND
+            BOOK_ITEMID = #{itemId}
+    </delete>
+    
+    <insert id="mergeBookLike">
+        MERGE INTO BOOK_LIKE B
+            USING DUAL
+            ON (
+                B.MEMBER_NO = #{memberNo} AND
+                B.BOOK_ITEMID = #{itemId}
+            )
+        WHEN MATCHED THEN
+            UPDATE SET
+                B.BOOKLIKE_TIMESTAMP = sysdate
+            DELETE WHERE
+                B.MEMBER_NO = #{memberNo} AND
+                B.BOOK_ITEMID = #{itemId}
+        WHEN NOT MATCHED THEN
+            INSERT (MEMBER_NO, BOOK_ITEMID, BOOKLIKE_TIMESTAMP)
+            VALUES (#{memberNo}, #{itemId}, sysdate)
+    </insert>
+    
+    <select id="selectBookLike" resultType="BookLike">
+        SELECT
+            MEMBER_NO as memberNo,
+            BOOK_ITEMID as itemId,
+            BOOKLIKE_TIMESTAMP as timestamp
+        FROM
+            BOOK_LIKE
+        WHERE
+            MEMBER_NO = #{memberNo} AND
+            BOOK_ITEMID = #{itemId}
+    </select>
+    
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rldk2002.bookstore.member.mapper.MemberMapper">
+
+	<resultMap id="RM_Member" type="Member">
+		<id column="MEMBER_NO" property="no" />
+		<id column="MEMBER_ID" property="id" />
+		<result column="MEMBER_PASSWORD" property="password" />
+		<result column="MEMBER_NAME" property="name" />
+		<result column="MEMBER_CREATION_DATE" property="creationDate" />
+		<result column="MEMBER_DELETION_DATE" property="deletionDate" />
+		<result column="MEMBER_ROLES" property="roles" typeHandler="com.rldk2002.bookstore.security.support.SimpleGrantedAuthoritiesTypeHandler" />
+		<result column="MEMBER_STATUSES" property="statuses" typeHandler="com.rldk2002.bookstore.security.support.AccountStatusesTypeHandler" />
+	</resultMap>
+	
+	<insert id="insertMember">
+		INSERT INTO MEMBER (
+			MEMBER_NO,
+			MEMBER_ID,
+			MEMBER_PASSWORD,
+			MEMBER_NAME,
+			MEMBER_CREATION_DATE,
+		    MEMBER_ROLES,
+			MEMBER_STATUSES
+		) VALUES (
+			#{member.no},
+		    #{member.id},
+		    #{member.password},
+		    #{member.name},
+		    sysdate,
+		    #{member.roles, typeHandler=com.rldk2002.bookstore.security.support.SimpleGrantedAuthoritiesTypeHandler},
+		    #{member.statuses, typeHandler=com.rldk2002.bookstore.security.support.AccountStatusesTypeHandler}
+		)
+	</insert>
+
+	<select id="selectMember" resultMap="RM_Member">
+		SELECT
+			MEMBER_NO,
+			MEMBER_ID,
+			MEMBER_PASSWORD,
+			MEMBER_NAME,
+			MEMBER_CREATION_DATE,
+			MEMBER_DELETION_DATE,
+			MEMBER_ROLES,
+			MEMBER_STATUSES
+		FROM
+			MEMBER
+		<where>
+			<if test="param eq 'no'">MEMBER_NO = #{value}</if>
+			<if test="param eq 'id'">MEMBER_ID = #{value}</if>
+		</where>
+	</select>
+
+</mapper>

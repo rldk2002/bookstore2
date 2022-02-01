@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="jdbcTypeForNull" value="NULL"/>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <typeAliases>
+        <typeAlias type="com.rldk2002.bookstore.member.Member" alias="Member" />
+        <typeAlias type="com.rldk2002.bookstore.book.entity.BookCart" alias="BookCart" />
+        <typeAlias type="com.rldk2002.bookstore.book.entity.BookLike" alias="BookLike" />
+    </typeAliases>
+
+    <typeHandlers>
+        <typeHandler handler="com.rldk2002.bookstore.security.support.SimpleGrantedAuthoritiesTypeHandler" javaType="java.util.Set" />
+        <typeHandler handler="com.rldk2002.bookstore.security.support.AccountStatusesTypeHandler" javaType="java.util.Set" />
+    </typeHandlers>
+
+    <mappers>
+        <mapper resource="mybatis/mapper/member.xml"/>
+        <mapper resource="mybatis/mapper/book.xml"/>
+        <mapper resource="mybatis/mapper/jwt.xml"/>
+    </mappers>
+</configuration>
