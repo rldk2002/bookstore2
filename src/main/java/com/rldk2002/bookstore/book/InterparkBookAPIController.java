@@ -2,22 +2,15 @@ package com.rldk2002.bookstore.book;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.rldk2002.bookstore.book.entity.BookCart;
 import com.rldk2002.bookstore.book.entity.InterparkBook;
 import com.rldk2002.bookstore.book.entity.InterparkBookResult;
-import com.rldk2002.bookstore.book.service.BookService;
 import com.rldk2002.bookstore.book.service.InterparkBookService;
 import com.rldk2002.bookstore.book.validation.BookGroupMarker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,7 +18,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/books")
 public class InterparkBookAPIController {
     private final InterparkBookService interparkBookService;
-    private final BookService bookService;
 
     @JsonView(BookGroupMarker.View.class)
     @GetMapping("/{corner}/category/{categoryId}")
@@ -78,26 +70,4 @@ public class InterparkBookAPIController {
         }
     }
 
-//    @JsonView(BookGroupMarker.Cart.class)
-//    @GetMapping("/cart")
-//    public List<BookCart> bookCartList (
-//            @AuthenticationPrincipal(expression = "#this == 'anonymousUser' ? null : no") String memberNo
-//    ) {
-//        List<BookCart> books = bookService.getBookCarts(memberNo);
-//        List<BookCart> bookCarts = books.stream().map(bookCart -> {
-//            try {
-//                InterparkBook book = interparkBookService.search(bookCart.getItemId());
-//                BeanUtils.copyProperties(book, bookCart);
-//                return bookCart;
-//            } catch (JsonProcessingException e) {
-//                log.error("[ 인터파크 도서 API ] 책 정보 불러오기 실패");
-//                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
-//        })
-//        .collect(Collectors.toList());
-//
-//        log.debug("[ 인터파크 도서 API ] 북카트 불러오기, memberNo: {}", memberNo);
-//
-//        return bookCarts;
-//    }
 }

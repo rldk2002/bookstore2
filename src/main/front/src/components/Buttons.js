@@ -35,6 +35,12 @@ const setSimpleButtonColor = color => {
 				background-color: #dc3545;
 				color: white;
 			`;
+		case "grey":
+			return css`
+                border-color: grey;
+                background-color: grey;
+                color: white;
+			`;
 		default:
 			return css`
 				border-color: ${({ theme }) => theme.colors.darkBlue};
@@ -69,6 +75,13 @@ const Button = styled.button`
     vertical-align: middle;
 	
 	${({ size }) => setButtonSize(size)};
+	${({ disabled }) => {
+		if (disabled) {
+			return css`
+				opacity: 0.5;
+			`;
+		}
+	}}
 `;
 
 export const SimpleButton = styled(Button)`
@@ -91,5 +104,8 @@ const _Link = styled(Link)`
 `;
 
 export const EmptyLink = styled(_Link)`
+
+`;
+export const SimpleLink = styled(_Link)`
 
 `;

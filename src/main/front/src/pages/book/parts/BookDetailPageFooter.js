@@ -8,9 +8,11 @@ import { useAddBookToCart, useToggleBookLike, useFetchBookLike } from "../../../
 import { Heart as FillHeart } from "@styled-icons/boxicons-solid/Heart";
 import { Heart as EmptyHeart } from "@styled-icons/boxicons-regular/Heart";
 import { useQueryClient } from "react-query";
-import { queryKeys, queryKeywords } from "../../../api/queryKeys";
+import { queryKeywords } from "../../../api/queryKeys";
 import redirectLogin from "../../../service/redirectLogin";
 import { LoadingSpinner } from "../../../components/LoadingIndicator";
+import { toast } from "react-toastify";
+
 
 const BookDetailPageFooter = ({ itemId, price }) => {
 	const history = useHistory();
@@ -36,11 +38,8 @@ const BookDetailPageFooter = ({ itemId, price }) => {
 			mutateAsyncAddBookCart({ itemId: itemId, count: itemCount }, {
 				onSuccess: isAuthenticated => {
 					if (isAuthenticated) {
-						queryClient.invalidateQueries(queryKeys.bookCart([queryKeywords.principal]))
-						.finally(() => {
-							if (window.confirm("책이 북카트에 담겼습니다. 북카트로 이동하시겠습니까?")) {
-								history.push("/books/cart");
-							}
+						toast.success("책이 북카트에 담겼습니다.", {
+							position: toast.POSITION.TOP_CENTER
 						});
 					} else {
 						if (window.confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
@@ -58,7 +57,7 @@ const BookDetailPageFooter = ({ itemId, price }) => {
 	};
 	
 	/*
-	 * 좋아요
+	 * 찜
 	 */
 	const { data: bookLike } = useFetchBookLike(itemId);
 	const { mutateAsync: mutateAsyncBookLike } = useToggleBookLike();
@@ -70,7 +69,17 @@ const BookDetailPageFooter = ({ itemId, price }) => {
 						predicate: ({ queryKey }) => queryKey.filter(
 							key => key[1] === queryKeywords.bookLike && key[3].itemId === itemId
 						)
-					}).finally();
+					}).finally(() => {
+						if (bookLike) {
+							toast.success("책을 찜목록에서 제거했습니다.", {
+								position: toast.POSITION.TOP_CENTER
+							});
+						} else {
+							toast.success("책을 찜목록에 추가했습니다.", {
+								position: toast.POSITION.TOP_CENTER
+							});
+						}
+					});
 				} else {
 					if (window.confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
 						redirectLogin(history);

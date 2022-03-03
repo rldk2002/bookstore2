@@ -23,12 +23,12 @@ class BookstoreApplicationTests {
         encryptor.setPassword("canna");
 
         String key = encryptor.encrypt("3qzFsioWKGa5L_SWbqVB");
-        String pswd = encryptor.encrypt("zk5T08UK_E");
+        String pswd = encryptor.encrypt("gkstmxk13@QQ");
 
 //        System.out.println(key);
-//        System.out.println(pswd);
-        String interparkKey = encryptor.encrypt("1C8BCF6B8D5DC80DCC9A942E580D229298557FF81B5D47E079331532A8B5BAD1");
-        System.out.println(interparkKey);
+        System.out.println(pswd);
+//        String interparkKey = encryptor.encrypt("1C8BCF6B8D5DC80DCC9A942E580D229298557FF81B5D47E079331532A8B5BAD1");
+//        System.out.println(interparkKey);
     }
 
     @Test

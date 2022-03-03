@@ -2,21 +2,28 @@ import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useQueryClient } from "react-query";
-import { queryKeys, queryKeywords } from "../../api/queryKeys";
+import { queryKeywords } from "../../api/queryKeys";
 import MainLayout from "../../components/layout/MainLayout";
 import { LoadingSpinner } from "../../components/LoadingIndicator";
 import { Heart as EmptyHeart } from "@styled-icons/boxicons-regular/Heart";
 import { Heart as FillHeart } from "@styled-icons/boxicons-solid/Heart";
 import { device, Mobile, Tablet } from "../../style/device";
-import { convertyyyymmddWithDelimiter } from "../../utils/stringutils";
+import { convertInterparkBookDateWithDelimiter } from "../../utils/stringutils";
 import StarRatings from "react-star-ratings";
 import { OutlineButton, SimpleButton } from "../../components/Buttons";
 import BookDetailPageFooter from "./parts/BookDetailPageFooter";
 import ItemCounter from "./parts/ItemCounter";
-import { useAddBookToCart, useToggleBookLike, useFetchBookLike, useFetchBook } from "../../api/queries";
+import {
+	useAddBookToCart,
+	useToggleBookLike,
+	useFetchBookLike,
+	useFetchBook
+} from "../../api/queries";
 import redirectLogin from "../../service/redirectLogin";
 import { useTitle } from "../../hook/hooks";
 import { TITLE_SUFFIX } from "../../config";
+import { toast } from "react-toastify";
+import MyBookReviewEditor from "./parts/MyBookReviewEditor";
 
 /**
  * 책 상세페이지
@@ -42,7 +49,7 @@ const BookDetailPage = () => {
 		description,
 		isbn,
 		categoryId
-	} = {} } = useFetchBook(itemId);
+	} = {} } = useFetchBook(itemId, { useErrorBoundary: true });
 	const [categoryName, setCategoryName] = useState('');
 	useEffect(() => {
 		fetch("/book/interpark_book_categories.txt")
@@ -65,11 +72,8 @@ const BookDetailPage = () => {
 			mutateAsyncAddBookCart({ itemId: itemId, count: itemCount }, {
 				onSuccess: isAuthenticated => {
 					if (isAuthenticated) {
-						queryClient.invalidateQueries(queryKeys.bookCart([queryKeywords.principal]))
-						.finally(() => {
-							if (window.confirm("책이 북카트에 담겼습니다. 북카트로 이동하시겠습니까?")) {
-								history.push("/books/cart");
-							}
+						toast.success("책이 북카트에 담겼습니다.", {
+							position: toast.POSITION.BOTTOM_RIGHT
 						});
 					} else {
 						if (window.confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
@@ -90,7 +94,7 @@ const BookDetailPage = () => {
 	};
 	
 	/*
-	 * 좋아요
+	 * 찜
 	 */
 	const { data: bookLike } = useFetchBookLike(itemId);
 	const { mutateAsync: mutateAsyncBookLike } = useToggleBookLike();
@@ -102,7 +106,17 @@ const BookDetailPage = () => {
 						predicate: ({ queryKey }) => queryKey.filter(
 							key => key[1] === queryKeywords.bookLike && key[3].itemId === itemId
 						)
-					}).finally();
+					}).finally(() => {
+						if (bookLike) {
+							toast.success("책을 찜목록에서 제거했습니다.", {
+								position: toast.POSITION.BOTTOM_RIGHT
+							});
+						} else {
+							toast.success("책을 찜목록에 추가했습니다.", {
+								position: toast.POSITION.BOTTOM_RIGHT
+							});
+						}
+					});
 				} else {
 					if (window.confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
 						redirectLogin(history);
@@ -133,7 +147,7 @@ const BookDetailPage = () => {
 									<Book.Author>
 										{ author && <div>{ author } 저</div> }
 										<div>{ publisher }</div>
-										<div>{ convertyyyymmddWithDelimiter(pubDate, ".") }</div>
+										<div>{ convertInterparkBookDateWithDelimiter(pubDate, ".") }</div>
 									</Book.Author>
 									<StarRatings
 										rating={3.8}
@@ -154,7 +168,7 @@ const BookDetailPage = () => {
 										<span>{ amount?.toLocaleString('ko-KR') }원</span>
 									</Amount>
 									<ButtonGroup>
-										<AddBookToCartButton color="blue" size="lg" onClick={ addBookToCart }>
+										<AddBookToCartButton color="blue" size="lg" onClick={ addBookToCart } disabled={ isAddBookCartLoading }>
 											{
 												isAddBookCartLoading ?
 												<LoadingSpinner variant="light" size="sm" /> :
@@ -193,10 +207,17 @@ const BookDetailPage = () => {
 									</tr>
 									<tr>
 										<th>출간일</th>
-										<td>{ convertyyyymmddWithDelimiter(pubDate, ".") }</td>
+										<td>{ convertInterparkBookDateWithDelimiter(pubDate, ".") }</td>
 									</tr>
 								</tbody>
 							</BookMetaTable>
+						</Section>
+						<Section>
+							<SectionTitle>리뷰</SectionTitle>
+							<MyBookReviewEditor itemId={ itemId } />
+							{
+							
+							}
 						</Section>
 					</Wrapper>
 					<Mobile>
@@ -283,7 +304,7 @@ Book.Title = styled.h1`
 Book.Author = styled.div`
 	display: flex;
 	margin: 8px 0;
-	color: #99A3A4;
+	color: ${({ theme }) => theme.colors.grey2};
 
     > div:not(:last-of-type):after {
         content: "\\00a0|\\00a0";

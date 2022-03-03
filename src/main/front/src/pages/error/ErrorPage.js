@@ -11,9 +11,12 @@ const ErrorPage = ({ error }) => {
 	if (status === 404) {
 		return <NotFound />;
 	}
-	// if (status === 401) {
-	// 	return
-	// }
+	if (status === 400) {
+		return <div>400</div>;
+	}
+	if (status === 403) {
+		return <div>권한 없음!!! 403</div>
+	}
 	return (
 		<div>
 			에러!!!

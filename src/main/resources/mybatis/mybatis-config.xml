@@ -12,6 +12,7 @@
         <typeAlias type="com.rldk2002.bookstore.member.Member" alias="Member" />
         <typeAlias type="com.rldk2002.bookstore.book.entity.BookCart" alias="BookCart" />
         <typeAlias type="com.rldk2002.bookstore.book.entity.BookLike" alias="BookLike" />
+        <typeAlias type="com.rldk2002.bookstore.book.entity.BookReview" alias="BookReview" />
     </typeAliases>
 
     <typeHandlers>

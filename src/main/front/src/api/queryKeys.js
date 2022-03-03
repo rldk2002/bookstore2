@@ -5,7 +5,8 @@ export const queryKeywords = {
 	book: "book",
 	bookList: "bookList",
 	bookLike: "bookLike",
-	bookCart: "bookCart"
+	bookCart: "bookCart",
+	bookReview: "bookReview"
 };
 
 export const queryKeys = {
@@ -19,5 +20,7 @@ export const queryKeys = {
 	bookLikes: () => [...queryKeys.all, queryKeywords.bookLike],
 	bookLike: params => [...queryKeys.bookLikes(), ...params],
 	bookCarts: () => [...queryKeys.all, queryKeywords.bookCart],
-	bookCart: params => [...queryKeys.bookCarts(), ...params]
+	bookCart: params => [...queryKeys.bookCarts(), ...params],
+	bookReviews: () => [...queryKeys.all, queryKeywords.bookReview],
+	bookReview: params => [...queryKeys.bookReviews(), ...params]
 };

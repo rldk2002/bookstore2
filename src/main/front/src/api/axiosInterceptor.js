@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const ajax = axios.create({
-	baseURL: "https://www.canna.kro.kr:3000"
-	// baseURL: "https://localhost:3000"
+	// baseURL: "https://www.canna.kro.kr:3000"
+	baseURL: "https://localhost:3000"
 });
 
 ajax.interceptors.request.use(

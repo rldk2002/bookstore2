@@ -5,7 +5,7 @@
 
 <mapper namespace="com.rldk2002.bookstore.member.mapper.MemberMapper">
 
-	<resultMap id="RM_Member" type="Member">
+	<resultMap id="MemberResultMap" type="Member">
 		<id column="MEMBER_NO" property="no" />
 		<id column="MEMBER_ID" property="id" />
 		<result column="MEMBER_PASSWORD" property="password" />
@@ -36,7 +36,7 @@
 		)
 	</insert>
 
-	<select id="selectMember" resultMap="RM_Member">
+	<select id="selectMember" resultMap="MemberResultMap">
 		SELECT
 			MEMBER_NO,
 			MEMBER_ID,

@@ -10,9 +10,9 @@ import { useFetchBook, useFetchBookCart, useModifyBookCartCount, useRemoveBookCa
 import { useTitle } from "../../hook/hooks";
 import { TITLE_SUFFIX } from "../../config";
 import redirectLogin from "../../service/redirectLogin";
-import ItemCounter from "./parts/ItemCounter";
 import ajax from "../../api/axiosInterceptor";
 import { OutlineButton } from "../../components/Buttons";
+import { Form } from "react-bootstrap";
 
 const Book = ({ id, count }) => {
 	const { isLoading, data: book = {} } = useFetchBook(id);
@@ -21,7 +21,7 @@ const Book = ({ id, count }) => {
 	const history = useHistory();
 	const queryClient = useQueryClient();
 	
-	const { mutateAsync: mutateAsyncAddBookCart } = useModifyBookCartCount();
+	const { mutateAsync: mutateAsyncAddBookCart, isLoading: isLoadingModifyBookCartCount } = useModifyBookCartCount();
 	const modifyBookCartCount = count => {
 		if (!count) count = 0;
 		mutateAsyncAddBookCart({ itemId: id, count: count }, {
@@ -39,8 +39,8 @@ const Book = ({ id, count }) => {
 		}).finally();
 	};
 	
-	const handleCountChange = count => {
-		modifyBookCartCount(count);
+	const handleCountChange = ({ target }) => {
+		modifyBookCartCount(target.value);
 	};
 	
 	if (isLoading) {
@@ -57,17 +57,31 @@ const Book = ({ id, count }) => {
 				<img src={ book.coverLargeUrl } alt={ book.title } />
 			</Cover>
 			<MetaData>
-				<Title>{ book.title }</Title>
+				<div>
+					<Title to={ `/books/${ book.itemId }` }>{ book.title }</Title>
+				</div>
 				<div>
 					<Amount>
-						<ItemCounter
-							initCount={ count }
-							onCountChange={ handleCountChange }
-						/>
+						<Form.Select size="sm" onChange={ handleCountChange } defaultValue={ count }>
+							{
+								[...Array(100).keys()].map((idx) => {
+									return <option
+										key={ idx }
+										value={ idx + 1 }
+									>
+										{ idx + 1 }
+									</option>;
+								})
+							}
+						</Form.Select>
 					</Amount>
 					<Price>
 						<div>주문금액</div>
-						<div>{ amount?.toLocaleString('ko-KR') }원</div>
+						{
+							isLoadingModifyBookCartCount ?
+							<LoadingSpinner variant="dark" size="sm"/> :
+							<div>{ amount?.toLocaleString('ko-KR') }원</div>
+						}
 					</Price>
 				</div>
 			</MetaData>
@@ -151,7 +165,6 @@ const BookCartList = () => {
 		if (target.checked) {
 			setAllChecked(true);
 		} else {
-			console.log("전체 체크 해제");
 			setAllChecked(false);
 			setChekedItems([]);
 		}
@@ -313,15 +326,12 @@ const Amount = styled.div`
 	align-items: center;
 	margin: 10px 0;
 	
-	> input {
-		width: 30px;
+	> select {
+		width: 100px;
         text-align: center;
 	}
-	> button {
-		margin-left: 10px;
-	}
 `;
-const Title = styled.div`
+const Title = styled(Link)`
 	font-weight: bold;
 `;
 const Price = styled.div`

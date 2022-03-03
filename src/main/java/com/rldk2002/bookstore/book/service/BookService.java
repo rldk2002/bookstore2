@@ -1,7 +1,9 @@
 package com.rldk2002.bookstore.book.service;
 
+import com.nhncorp.lucy.security.xss.XssPreventer;
 import com.rldk2002.bookstore.book.entity.BookCart;
 import com.rldk2002.bookstore.book.entity.BookLike;
+import com.rldk2002.bookstore.book.entity.BookReview;
 import com.rldk2002.bookstore.book.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -66,5 +69,34 @@ public class BookService {
         int itemId
     ) {
         return bookMapper.selectBookLike(memberNo, itemId);
+    }
+
+    @PreAuthorize("isAuthenticated() and (#review.writerNo == principal.no)")
+    public void writeBookReview (
+        BookReview review
+    ) {
+        bookMapper.mergeBookReview(review);
+    }
+
+    @PreAuthorize("permitAll()")
+    public BookReview getBookReview (
+        String writerNo,
+        int itemId
+    ) {
+        final Map<String, Object> params = Map.of("writerNo", writerNo, "itemId", itemId);
+        BookReview review = bookMapper.selectBookReview(params);
+        if (review != null) {
+            review.setContent(XssPreventer.unescape(review.getContent()));
+        }
+        return review;
+    }
+
+    @PreAuthorize("isAuthenticated() and (#writerNo == principal.no)")
+    public void removeBookReview (
+        String writerNo,
+        int itemId
+    ) {
+        final Map<String, Object> params = Map.of("writerNo", writerNo, "itemId", itemId);
+        bookMapper.deleteBookReview(params);
     }
 }

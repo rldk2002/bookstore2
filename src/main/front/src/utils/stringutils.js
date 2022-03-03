@@ -1,4 +1,4 @@
-export function convertyyyymmddWithDelimiter(yyyymmdd, delimiter = "-") {
+export function convertInterparkBookDateWithDelimiter(yyyymmdd, delimiter = "-") {
 	return yyyymmdd.replace(/(\d{4})(\d{2})(\d{2})/, `$1${delimiter}$2${delimiter}$3`);
 };
 export function parseQueryVariable(querystring, variable) {

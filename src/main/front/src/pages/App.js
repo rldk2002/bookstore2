@@ -7,15 +7,20 @@ import GlobalStyle from "../style/GlobalStyle";
 import theme from "../style/theme";
 import { ThemeProvider } from "styled-components";
 import ErrorPage from "./error/ErrorPage";
+import { Flip, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import dateFormat from "../utils/prototype/dateFormat";
 
 function App() {
 	const queryClient = new QueryClient({
 		defaultOptions: {
 			queries: {
 				retry: false,
-				staleTime: Infinity,
-				cacheTime: Infinity,
-				useErrorBoundary: true
+				staleTime: 0,
+				cacheTime: 1000 * 60 * 30,
+				refetchOnMount: true,
+				refetchOnWindowFocus: false,
+				useErrorBoundary: false
 			},
 			mutations: {
 				retry: false,
@@ -24,6 +29,8 @@ function App() {
 		}
 	});
 	const { reset } = useQueryErrorResetBoundary();
+	
+	dateFormat();
 	
 	return (
 		<QueryClientProvider client={ queryClient }>
@@ -35,6 +42,11 @@ function App() {
 					<GlobalStyle />
 					<ThemeProvider theme={ theme }>
 						<AppRoute />
+						<ToastContainer
+							autoClose={ 500 }
+							hideProgressBar
+							transition={ Flip }
+						/>
 					</ThemeProvider>
 				</BrowserRouter>
 			</ErrorBoundary>

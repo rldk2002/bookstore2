@@ -9,8 +9,8 @@ import BookCategoryResultPage from "./book/BookCategoryResultPage";
 import BookSearchResultPage from "./book/BookSearchResultPage";
 import BookDetailPage from "./book/BookDetailPage";
 import BookCartPage from "./book/BookCartPage";
-import InternalServerError from "./error/internalServerError";
 import PrivateRoute from "../components/PrivateRoute";
+import Test from "../Test";
 
 const AppRoute = () => {
 	
@@ -24,7 +24,9 @@ const AppRoute = () => {
 			<PrivateRoute path="/books/cart" component={ BookCartPage } exact />
 			<Route path="/books/:itemId" component={ BookDetailPage } exact />
 			<Route path="/books/:corner/category/:categoryId" component={ BookCategoryResultPage } exact />
-			<Route path="/error/500" component={ InternalServerError } exact />
+			
+			<Route path="/test" component={ Test } />
+			
 			<Route component={ NotFound } />
 		</Switch>
 	);

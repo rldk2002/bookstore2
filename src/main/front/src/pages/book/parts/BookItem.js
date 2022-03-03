@@ -1,21 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Link, useHistory } from "react-router-dom";
 import { device, Tablet } from "../../../style/device";
-import { convertyyyymmddWithDelimiter } from "../../../utils/stringutils";
+import { convertInterparkBookDateWithDelimiter } from "../../../utils/stringutils";
 import { Heart as EmptyHeart } from "@styled-icons/boxicons-regular/Heart";
 import { Cart } from "@styled-icons/boxicons-regular";
 import { OutlineButton } from "../../../components/Buttons";
 import { useAddBookToCart, useToggleBookLike, useFetchBookLike } from "../../../api/queries";
-import { useQueryClient } from "react-query";
-import { queryKeys, queryKeywords } from "../../../api/queryKeys";
 import { Heart as FillHeart } from "@styled-icons/boxicons-solid";
 import redirectLogin from "../../../service/redirectLogin";
+import { toast } from "react-toastify";
 
 
 const BookItem = ({ book }) => {
 	const history = useHistory();
-	const queryClient = useQueryClient();
 	const {
 		priceStandard,
 		discountRate,
@@ -33,17 +31,23 @@ const BookItem = ({ book }) => {
 	/*
 	 * 좋아요
 	 */
+	const [isLiked, setLiked] = useState(false);
 	const { data: bookLike } = useFetchBookLike(itemId);
 	const { mutateAsync: mutateAsyncBookLike } = useToggleBookLike();
 	const handleClickLikeBook = () => {
 		mutateAsyncBookLike({ itemId: itemId }, {
 			onSuccess: (isAuthenticated) => {
 				if (isAuthenticated) {
-					queryClient.invalidateQueries({
-						predicate: ({ queryKey }) => queryKey.filter(
-							key => key[1] === queryKeywords.bookLike && key[3].itemId === itemId
-						)
-					}).finally();
+					setLiked(!isLiked);
+					if (isLiked) {
+						toast.success("책을 찜목록에서 제거했습니다.", {
+							position: toast.POSITION.BOTTOM_RIGHT
+						});
+					} else {
+						toast.success("책을 찜목록에 추가했습니다.", {
+							position: toast.POSITION.BOTTOM_RIGHT
+						});
+					}
 				} else {
 					if (window.confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
 						redirectLogin(history);
@@ -52,6 +56,9 @@ const BookItem = ({ book }) => {
 			}
 		}).finally();
 	}
+	useEffect(() => {
+		if (bookLike) setLiked(true);
+	},[bookLike]);
 	
 	/*
 	 * 북카트
@@ -61,11 +68,8 @@ const BookItem = ({ book }) => {
 		mutateAsyncBookCart({ itemId: itemId, count: 1 }, {
 			onSuccess: isAuthenticated => {
 				if (isAuthenticated) {
-					queryClient.invalidateQueries(queryKeys.bookCart([queryKeywords.principal]))
-					.finally(() => {
-						if (window.confirm("책이 북카트에 담겼습니다. 북카트로 이동하시겠습니까?")) {
-							history.push("/books/cart");
-						}
+					toast.success("책이 북카트에 담겼습니다.", {
+						position: toast.POSITION.BOTTOM_RIGHT
 					});
 				} else {
 					if (window.confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
@@ -89,9 +93,7 @@ const BookItem = ({ book }) => {
 						<Author>
 							{ author && <div>{ author }</div> }
 							{ publisher && <div>{ publisher }</div> }
-							<Tablet>
-								<div>{ convertyyyymmddWithDelimiter(pubDate, ".") }</div>
-							</Tablet>
+							<div>{ convertInterparkBookDateWithDelimiter(pubDate, ".") }</div>
 						</Author>
 						<Tablet>
 							<Description>{ description }</Description>
@@ -106,7 +108,7 @@ const BookItem = ({ book }) => {
 			</Link>
 			<BookButtonGroup>
 				<OutlineButton color="red" size="sm" onClick={ handleClickLikeBook }>
-					{ bookLike ? <FillHeart size="20" /> : <EmptyHeart size="20" /> }
+					{ isLiked ? <FillHeart size="20" /> : <EmptyHeart size="20" /> }
 				</OutlineButton>
 				<OutlineButton color="blue" size="sm" onClick={ handleClickBookCart }>
 					<Cart size="20" />

@@ -81,4 +81,78 @@
             BOOK_ITEMID = #{itemId}
     </select>
     
+    <resultMap id="BookReviewResultMap" type="BookReview">
+        <id column="BOOKREVIEW_NO" property="no" />
+        <result column="BOOK_ITEMID" property="itemId" />
+        <result column="MEMBER_NO" property="writerNo" />
+        <result column="MEMBER_NAME" property="writerName" />
+        <result column="BOOKREVIEW_CONTENT" property="content" />
+        <result column="BOOKREVIEW_STAR_RATING" property="starRating" />
+        <result column="BOOKREVIEW_WRITE_DATE" property="writeDate" />
+    </resultMap>
+    
+    <insert id="mergeBookReview">
+        MERGE INTO BOOK_REVIEW R
+            USING DUAL
+            ON (
+                R.MEMBER_NO = #{writerNo} AND
+                R.BOOK_ITEMID = #{itemId}
+            )
+        WHEN MATCHED THEN
+            UPDATE SET
+                R.BOOKREVIEW_CONTENT = #{content},
+                R.BOOKREVIEW_STAR_RATING = #{starRating}
+        WHEN NOT MATCHED THEN
+            INSERT (
+                BOOKREVIEW_NO,
+                BOOKREVIEW_CONTENT,
+                BOOKREVIEW_STAR_RATING,
+                BOOKREVIEW_WRITE_DATE,
+                BOOK_ITEMID,
+                MEMBER_NO
+            )
+            VALUES (
+                #{no},
+                #{content},
+                #{starRating},
+                sysdate,
+                #{itemId},
+                #{writerNo}
+           )
+    </insert>
+    
+    <select id="selectBookReview" resultMap="BookReviewResultMap">
+        SELECT
+            A.BOOKREVIEW_NO,
+            A.BOOK_ITEMID,
+            A.MEMBER_NO,
+            B.MEMBER_NAME,
+            A.BOOKREVIEW_CONTENT,
+            A.BOOKREVIEW_STAR_RATING,
+            A.BOOKREVIEW_WRITE_DATE
+        FROM
+            BOOK_REVIEW A, MEMBER B
+        <where>
+            A.MEMBER_NO = B.MEMBER_NO
+            <if test="writerNo neq null">
+                AND A.MEMBER_NO = #{writerNo}
+            </if>
+            <if test="itemId neq null">
+                AND A.BOOK_ITEMID = #{itemId}
+            </if>
+        </where>
+    </select>
+    
+    <delete id="deleteBookReview">
+        DELETE FROM BOOK_REVIEW
+        <where>
+            <if test="writerNo neq null">
+                AND MEMBER_NO = #{writerNo}
+            </if>
+            <if test="itemId neq null">
+                AND BOOK_ITEMID = #{itemId}
+            </if>
+        </where>
+    </delete>
+    
 </mapper>
