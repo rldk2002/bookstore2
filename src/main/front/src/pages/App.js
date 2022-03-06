@@ -1,6 +1,6 @@
 import React from "react";
 import { QueryClient, QueryClientProvider, useQueryErrorResetBoundary } from "react-query";
-import AppRoute from "./AppRoute";
+import AppRoute from "../AppRoute";
 import { BrowserRouter } from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
 import GlobalStyle from "../style/GlobalStyle";
